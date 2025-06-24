@@ -33,6 +33,7 @@ class Meteor(Object):
         self.image = transform.scale(image.load(image_path), (32, 32)) # Например, уменьшим метеориты
         self.rect = self.image.get_rect()
         self.rect.x = x
+        self.rect.x = x
         self.rect.y = y
         self.speed_y = speed # Скорость падения по Y
 
@@ -40,7 +41,7 @@ class Meteor(Object):
         self.rect.y += self.speed_y
         if self.rect.y > HEIGHT:
             self.rect.x = randint(0, WIDTH - self.rect.width) # Случайная X позиция
-            self.rect.y = -32 # За пределами экрана
+            self.rect.y = randint(-200, -50)  # Случайная Y позиция, чтобы не сразу появлялись
         self.reset()
 
 
@@ -54,14 +55,36 @@ background = transform.scale(image.load("road.png"), (WIDTH, HEIGHT))
 
 # Инициализация метеора
 meteor_list = []
-num_meteors = 5  # Количество метеоритов
-for i in range(num_meteors):
-    x = randint(0, WIDTH - 32) # Рандом по X
-    y = randint(-100, -50) # Начальная позиция над экраном
-    meteor = Meteor("car.png", x, y, 2) # Скорость 2
-    meteor_list.append(meteor)
+def create_meteors(num_meteors):
+    """Создает метеориты, избегая перекрытия."""
+    meteors = []
+    occupied_positions = set()  # Множество для отслеживания занятых позиций
+
+    for _ in range(num_meteors):
+        while True:
+            x = randint(0, WIDTH - 32)
+            y = randint(-200, -50)
+            position = (x, y)  # Создаем кортеж для хранения позиции
+
+            # Проверяем, занята ли эта позиция другим метеоритом
+            is_overlapping = False
+            for existing_x, existing_y in occupied_positions:
+                distance = ((x - existing_x)**2 + (y - existing_y)**2)**0.5
+                if distance < 40:  # Регулируйте расстояние, чтобы избежать перекрытия
+                    is_overlapping = True
+                    break
+
+            if not is_overlapping:
+                break
+
+        meteor = Meteor("car.png", x, y, 2)
+        meteors.append(meteor)
+        occupied_positions.add(position) # Добавляем новую позицию в множество
+
+    return meteors
 
 game = True
+meteor_list = create_meteors(5)  # Создаем метеориты один раз в начале
 while game:
     for e in event.get():
         if e.type == QUIT:
@@ -72,6 +95,7 @@ while game:
     player.move()
 
     # Обновление и отрисовка метеоров
+
     for meteor in meteor_list:
         meteor.update()
 
