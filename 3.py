@@ -12,14 +12,24 @@ class Object(sprite.Sprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
+class Player(Object):
+    def move(self):
+        keys = key.get_pressed()
+        if (keys[K_LEFT] or keys[K_a]) and self.rect.x > 0:
+            self.rect.x -= self.speed
+        if (keys[K_RIGHT] or keys[K_d]) and self.rect.x < WIDTH - 64:
+            self.rect.x += self.speed
 
 class Enemy(Object):
-    def move(self, barrier_x, barrier_y):
+    def move(self, barrier_x, barrier_y, enemy_speed):
         if barrier_x <= self.x <= barrier_x+64:
             if self.x <= WIDTH / 2:
-                self.speed = self.speed
+                self.speed = enemy_speed
             if self.x > WIDTH / 2:
-                self.speed = -self.speed
+                self.speed = -enemy_speed
+        else:
+            self.speed = 0
+    
 #Константы
 FPS = 60
 BLACK = (0, 0, 0)
@@ -28,14 +38,27 @@ HEIGHT = 512
 WIDTH = 512
 
 game = True
+finish = False
 
 window = display.set_mode((WIDTH, HEIGHT))
 window.fill(WHITE)
+background = transform.scale(image.load("road.png"), (WIDTH, HEIGHT))
 clock = time.Clock()
+
+
+
+player = Player('car.png', 0, 448, 5)
+
 
 while game:
     for e in event.get():
         if e.type == QUIT:
             game = False
-    display.update()
-    clock.tick(FPS)
+    
+    if not finish:
+        window.blit(background, (0, 0))
+        player.reset()
+        player.move()
+        if sprite.collide_rect()
+        display.update()
+        clock.tick(FPS)
