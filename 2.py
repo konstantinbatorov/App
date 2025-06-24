@@ -1,4 +1,5 @@
 from pygame import *
+from random import *
 
 class Object(sprite.Sprite):
     # конструктор класса
@@ -23,6 +24,14 @@ class Player(Object):
         if keys[K_RIGHT] and self.rect.x < WIDTH - 64:
             self.rect.x += self.speed
 
+class Barrier(Object):
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.y > HEIGHT:
+            self.rect.x = randint(0, WIDTH - 64) # Случайная X позиция
+            self.rect.y = -32 # За пределами экрана
+        self.reset()
+
 player = Player("car.png", 0, 448, 10)
 WIDTH = 512
 HEIGHT= 512
@@ -31,6 +40,15 @@ clock = time.Clock()
 window = display.set_mode((WIDTH, HEIGHT))
 background = transform.scale(image.load("road.png"), (WIDTH, HEIGHT))
 game = True
+
+barrier_list = list()
+num_barrier = 2  # Количество метеоритов
+for i in range(num_barrier):
+    x = randint(0, WIDTH - 32) # Рандом по X
+    y = randint(-100, -50) # Начальная позиция над экраном
+    barrier = Barrier("car.png", x, y, 2) # Скорость 2
+    barrier_list.append(barrier)
+
 while game:
     for e in event.get():
         if e.type == QUIT:
@@ -39,6 +57,9 @@ while game:
     window.blit(background, (0, 0))
     player.reset()
     player.move()
+
+    for barrier in barrier_list:
+        barrier.update()
 
     display.update()
     clock.tick(FPS)
