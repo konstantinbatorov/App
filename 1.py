@@ -39,7 +39,7 @@ class Object(sprite.Sprite):
 # Класс Player с более приятными размерами
 class Player(Object):
     def __init__(self, image_path, x, y, speed):
-        super().__init__(image_path, x, y, speed, size=(40, 70))
+        super().__init__(image_path, x, y, speed, size=(40, 80))
     def move(self):
         keys = key.get_pressed()
         if keys[K_LEFT] and self.rect.x > 104:
@@ -54,7 +54,7 @@ class Player(Object):
 # Класс Enemy (самолет)
 class Enemy(Object):
     def __init__(self, image_path, x, y, speed):
-        super().__init__(image_path, x, y, speed, size=(64, 64))
+        super().__init__(image_path, x, y, speed, size=(40, 80))
     pass
 
 # Класс Barrier (покрышки)
@@ -70,10 +70,10 @@ class Barrier(Object):
             self.rect.y = randint(-200, -50)
 
 # Создаем игрока
-player = Player("car.png", WIDTH // 2, 448, 3)
+player = Player("car.png", WIDTH // 2, 400, 3)
 
 # Создаем бота
-Bot = Enemy("plane.png", WIDTH // 2, 448, 3)
+Bot = Enemy("Bot.png", WIDTH // 2 - 64, 400, 3)
 
 # Функция для создания препятствий, избегая пересечений с игроком и другими препятствиями
 def create_barriers(num_bars):
@@ -129,7 +129,8 @@ while game:
     # Обработка игрока
     player.reset()
     player.move()
-
+    
+    Bot.reset()
     # Обновление и отрисовка препятствий
     for barrier in barrier_list:
         barrier.update()
@@ -158,10 +159,6 @@ while game:
         # Вероятность выбрать текстуру conus.png
         if random() < 0.3:
             image_path = "conus.png"
-        elif random() > 0.9:
-            image_path = "conus2.png"
-        elif random() == 0.8:
-            image_path = "conus3.png"
         else:
             image_path = "pocr.png"
         new_barrier = Barrier(image_path, x, y, 3)
