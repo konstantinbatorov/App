@@ -17,12 +17,13 @@ display.set_caption("Meteor Game")
 # Загрузка фонового изображения
 background = transform.scale(image.load("road.png"), (WIDTH, HEIGHT))
 
-# Создание класса Object
+# Создание класса Object с возможностью задавать размер
 class Object(sprite.Sprite):
-    def __init__(self, player_image, x, y, player_speed):
+    def __init__(self, image_path, x, y, speed, size=(64, 64)):
         super().__init__()
-        self.image = transform.scale(image.load(player_image), (64, 64))
-        self.speed = player_speed
+        # Масштабируем изображение по заданным размерам
+        self.image = transform.scale(image.load(image_path), size)
+        self.speed = speed
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -30,23 +31,25 @@ class Object(sprite.Sprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
-# Класс Player
+# Класс Player с размером 32x64
 class Player(Object):
+    def __init__(self, image_path, x, y, speed):
+        super().__init__(image_path, x, y, speed, size=(32, 70))
     def move(self):
         keys = key.get_pressed()
-        if keys[K_LEFT] and self.rect.x > 0:
+        if keys[K_LEFT] and self.rect.x > 20:
             self.rect.x -= self.speed
-        if keys[K_RIGHT] and self.rect.x < WIDTH - 64:
+        if keys[K_RIGHT] and self.rect.x < WIDTH - self.rect.width - 20:
             self.rect.x += self.speed
+        if keys[K_UP] and self.rect.y > 0:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < HEIGHT - self.rect.height:
+            self.rect.y += self.speed
 
-# Класс Barrier (препятствие), пока что пустой, можно расширить
+# Класс Barrier (заменяет Meteor), размер 64x64
 class Barrier(Object):
-    pass
-
-# Класс Meteor
-class Meteor(Object):
     def __init__(self, image_path, x, y, speed):
-        super().__init__(image_path, x, y, speed)
+        super().__init__(image_path, x, y, speed, size=(64, 64))
         self.speed_y = speed
 
     def update(self):
@@ -56,29 +59,29 @@ class Meteor(Object):
             self.rect.y = randint(-200, -50)
 
 # Создаем игрока
-player = Player("car.png", WIDTH // 2, 448, 5)
+player = Player("car.png", WIDTH // 2, 448, 3)
 
-# Функция для создания метеоров, избегая перекрытия
-def create_meteors(num_meteors):
-    meteors = []
-    for _ in range(num_meteors):
+# Функция для создания барьеров (ранее метеоров), избегая перекрытия
+def create_barriers(num_bars):
+    barriers = []
+    for _ in range(num_bars):
         while True:
             x = randint(0, WIDTH - 64)
             y = randint(-200, -50)
-            new_meteor = Meteor("pocr.png", x, y, 2)
+            new_barrier = Barrier("pocr.png", x, y, 2)
             # Проверка перекрытия
             overlap = False
-            for m in meteors:
-                if m.rect.colliderect(new_meteor.rect):
+            for b in barriers:
+                if b.rect.colliderect(new_barrier.rect):
                     overlap = True
                     break
             if not overlap:
-                meteors.append(new_meteor)
+                barriers.append(new_barrier)
                 break
-    return meteors
+    return barriers
 
-# Создаем метеоры
-meteor_list = create_meteors(5)
+# Создаем барьеры
+barrier_list = create_barriers(5)
 
 clock = time.Clock()
 
@@ -92,35 +95,34 @@ while game:
     player.reset()
     player.move()
 
-    # Обновление и отрисовка метеоров
-    for meteor in meteor_list:
-        meteor.update()
-        meteor.reset()
+    # Обновление и отрисовка барьеров
+    for barrier in barrier_list:
+        barrier.update()
+        barrier.reset()
 
-    # Проверка столкновений между метеорами
-    for i in range(len(meteor_list)):
-        for j in range(i + 1, len(meteor_list)):
-            # Проверка, что оба метеора существуют
-            if meteor_list[i] is not None and meteor_list[j] is not None:
-                if sprite.collide_rect(meteor_list[i], meteor_list[j]):
-                    # Удаляем столкнувшиеся метеоры
-                    meteor_list[i] = None
-                    meteor_list[j] = None
+    # Проверка столкновений между барьерами
+    for i in range(len(barrier_list)):
+        for j in range(i + 1, len(barrier_list)):
+            if barrier_list[i] is not None and barrier_list[j] is not None:
+                if sprite.collide_rect(barrier_list[i], barrier_list[j]):
+                    # Удаляем столкнувшиеся барьеры
+                    barrier_list[i] = None
+                    barrier_list[j] = None
 
     # Удаляем None из списка
-    meteor_list = [m for m in meteor_list if m is not None]
+    barrier_list = [b for b in barrier_list if b is not None]
 
-    # Если осталось менее 5 метеоров, создаем новых
-    while len(meteor_list) < 5:
-        new_meteor = Meteor("pocr.png", randint(0, WIDTH - 64), randint(-200, -50), 2)
+    # Если осталось менее 5 барьеров, создаем новых
+    while len(barrier_list) < 5:
+        new_barrier = Barrier("pocr.png", randint(0, WIDTH - 64), randint(-200, -50), 2)
         # Проверка перекрытия с существующими
         overlap = False
-        for m in meteor_list:
-            if m.rect.colliderect(new_meteor.rect):
+        for b in barrier_list:
+            if b.rect.colliderect(new_barrier.rect):
                 overlap = True
                 break
         if not overlap:
-            meteor_list.append(new_meteor)
+            barrier_list.append(new_barrier)
 
     display.update()
     clock.tick(FPS)
