@@ -1,6 +1,6 @@
 # Битва машин
 
-![MarineGEO circle logo](/assets/img/MarineGEO_logo.png "MarineGEO logo")
+![MarineGEO circle logo](Game.png "MarineGEO logo")
 
 **Это простая 2D игра в стиле гонок, где вы управляете автомобилем, избегаете препятствий и пытаетесь проехать как можно дальше.**
 
