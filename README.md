@@ -1,6 +1,6 @@
 # Битва машин
 
-![alt text for screen readers]([(https://github.com/konstantinbatorov/App/blob/main/Game.png?raw=true)] "Text to show on mouseover")
+![MarineGEO circle logo](/assets/img/MarineGEO_logo.png "MarineGEO logo")
 
 **Это простая 2D игра в стиле гонок, где вы управляете автомобилем, избегаете препятствий и пытаетесь проехать как можно дальше.**
 
