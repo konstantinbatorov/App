@@ -1,5 +1,7 @@
 # Битва машин
 
+![alt text for screen readers]([(https://github.com/konstantinbatorov/App/blob/main/Game.png?raw=true)] "Text to show on mouseover")
+
 **Это простая 2D игра в стиле гонок, где вы управляете автомобилем, избегаете препятствий и пытаетесь проехать как можно дальше.**
 
 ---
